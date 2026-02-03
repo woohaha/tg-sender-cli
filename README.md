@@ -12,6 +12,12 @@ A simple CLI tool to send files to Telegram.
 
 ## Installation
 
+### Via go install
+
+```bash
+go install github.com/woohaha/tg-sender-cli@latest
+```
+
 ### From source
 
 ```bash

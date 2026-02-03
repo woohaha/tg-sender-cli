@@ -1,4 +1,4 @@
-module tg-sender
+module github.com/woohaha/tg-sender-cli
 
 go 1.24.4
 

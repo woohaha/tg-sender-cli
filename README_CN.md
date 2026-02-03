@@ -12,6 +12,12 @@
 
 ## 安装
 
+### 通过 go install
+
+```bash
+go install github.com/woohaha/tg-sender-cli@latest
+```
+
 ### 从源码编译
 
 ```bash

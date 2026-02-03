@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"tg-sender/config"
-	"tg-sender/sender"
+	"github.com/woohaha/tg-sender-cli/config"
+	"github.com/woohaha/tg-sender-cli/sender"
 )
 
 var version = "dev"

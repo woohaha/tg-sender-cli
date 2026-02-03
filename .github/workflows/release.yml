@@ -1,0 +1,57 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Run tests
+        run: go test -v ./...
+
+      - name: Get version
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Build binaries
+        run: |
+          VERSION=${{ steps.version.outputs.VERSION }}
+
+          # Linux amd64
+          GOOS=linux GOARCH=amd64 go build -ldflags "-X main.version=$VERSION" -o tg-sender-linux-amd64 .
+
+          # Linux arm64
+          GOOS=linux GOARCH=arm64 go build -ldflags "-X main.version=$VERSION" -o tg-sender-linux-arm64 .
+
+          # macOS amd64
+          GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.version=$VERSION" -o tg-sender-darwin-amd64 .
+
+          # macOS arm64 (Apple Silicon)
+          GOOS=darwin GOARCH=arm64 go build -ldflags "-X main.version=$VERSION" -o tg-sender-darwin-arm64 .
+
+          # Windows amd64
+          GOOS=windows GOARCH=amd64 go build -ldflags "-X main.version=$VERSION" -o tg-sender-windows-amd64.exe .
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            tg-sender-linux-amd64
+            tg-sender-linux-arm64
+            tg-sender-darwin-amd64
+            tg-sender-darwin-arm64
+            tg-sender-windows-amd64.exe
+          generate_release_notes: true

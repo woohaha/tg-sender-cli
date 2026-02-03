@@ -1,5 +1,7 @@
 # tg-sender-cli
 
+[English](README.md)
+
 一个简单的命令行工具，用于发送文件到 Telegram。
 
 ## 功能
@@ -107,4 +109,4 @@ go test ./...
 
 ## 许可证
 
-MIT
+Apache 2.0

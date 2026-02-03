@@ -1,5 +1,7 @@
 # tg-sender-cli
 
+[中文文档](README_CN.md)
+
 A simple CLI tool to send files to Telegram.
 
 ## Features
@@ -102,4 +104,4 @@ go test ./...
 
 ## License
 
-MIT
+Apache 2.0

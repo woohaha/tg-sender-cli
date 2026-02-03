@@ -20,32 +20,36 @@ func main() {
 		showVersion bool
 	)
 
-	flag.StringVar(&filePath, "f", "", "File path to upload (required)")
-	flag.StringVar(&message, "m", "", "Message caption (optional)")
+	flag.StringVar(&filePath, "f", "", "File path to upload")
+	flag.StringVar(&message, "m", "", "Text message or file caption")
 	flag.StringVar(&configPath, "c", "", "Config file path (optional, default: ~/.config/tg-sender/config.toml)")
 	flag.BoolVar(&showHelp, "h", false, "Show help message")
 	flag.BoolVar(&showVersion, "v", false, "Show version")
 
 	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, `tg-sender - Send files to Telegram
+		fmt.Fprintf(os.Stderr, `tg-sender - Send files or messages to Telegram
 
 USAGE:
-    tg-sender -f <file> [-m <message>] [-c <config>]
+    tg-sender -f <file> [-m <caption>] [-c <config>]
+    tg-sender -m <message> [-c <config>]
 
 FLAGS:
-    -f <file>     File path to upload (required)
+    -f <file>     File path to upload
                   Supports: images (jpg/png/gif/webp), videos (mp4/mov/avi/mkv), documents (any)
-    -m <message>  Message caption (optional)
+    -m <message>  Text message (if no file) or file caption (if with file)
     -c <config>   Config file path (optional)
                   Default: ~/.config/tg-sender/config.toml
     -h            Show this help message
     -v            Show version
 
 EXAMPLES:
+    # Send a text message
+    tg-sender -m "Hello world"
+
     # Send a photo
     tg-sender -f screenshot.png
 
-    # Send with caption
+    # Send file with caption
     tg-sender -f report.pdf -m "Monthly report"
 
     # Use custom config
@@ -64,9 +68,9 @@ EXIT CODES:
     0  Success
     1  Error (missing args, config error, send failed)
 
-For AI Agents: This tool sends files to a preconfigured Telegram chat.
-Required: -f flag with valid file path. Config must exist at default path
-or specified via -c flag. Returns "File sent successfully" on success.
+For AI Agents: This tool sends files or text messages to a preconfigured Telegram chat.
+Required: -f flag (file) or -m flag (message), or both. Config must exist at default
+path or specified via -c flag. Returns "Sent successfully" on success.
 `)
 	}
 
@@ -82,8 +86,8 @@ or specified via -c flag. Returns "File sent successfully" on success.
 		os.Exit(0)
 	}
 
-	if filePath == "" {
-		fmt.Fprintln(os.Stderr, "Error: -f (file path) is required")
+	if err := sender.ValidateSendParams(filePath, message); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		flag.Usage()
 		os.Exit(1)
 	}
@@ -110,10 +114,17 @@ or specified via -c flag. Returns "File sent successfully" on success.
 		os.Exit(1)
 	}
 
-	if err := s.SendFile(filePath, message); err != nil {
-		fmt.Fprintf(os.Stderr, "Error sending file: %v\n", err)
-		os.Exit(1)
+	if filePath != "" {
+		if err := s.SendFile(filePath, message); err != nil {
+			fmt.Fprintf(os.Stderr, "Error sending file: %v\n", err)
+			os.Exit(1)
+		}
+	} else {
+		if err := s.SendText(message); err != nil {
+			fmt.Fprintf(os.Stderr, "Error sending message: %v\n", err)
+			os.Exit(1)
+		}
 	}
 
-	fmt.Println("File sent successfully")
+	fmt.Println("Sent successfully")
 }

@@ -49,6 +49,22 @@ func New(botToken string, chatID int64) (*Sender, error) {
 	return &Sender{bot: bot, chatID: chatID}, nil
 }
 
+func ValidateSendParams(filePath, message string) error {
+	if filePath == "" && message == "" {
+		return fmt.Errorf("either file (-f) or message (-m) is required")
+	}
+	return nil
+}
+
+func (s *Sender) SendText(text string) error {
+	msg := tgbotapi.NewMessage(s.chatID, text)
+	_, err := s.bot.Send(msg)
+	if err != nil {
+		return fmt.Errorf("failed to send: %w", err)
+	}
+	return nil
+}
+
 func (s *Sender) SendFile(filePath string, caption string) error {
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		return fmt.Errorf("file not found: %s", filePath)

@@ -1,6 +1,31 @@
 package sender
 
-import "testing"
+import (
+	"testing"
+)
+
+func TestValidateSendParams(t *testing.T) {
+	tests := []struct {
+		name     string
+		file     string
+		message  string
+		wantErr  bool
+	}{
+		{"file only", "/path/to/file.jpg", "", false},
+		{"file and message", "/path/to/file.jpg", "caption", false},
+		{"message only", "", "hello", false},
+		{"neither", "", "", true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := ValidateSendParams(tt.file, tt.message)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ValidateSendParams(%q, %q) error = %v, wantErr %v", tt.file, tt.message, err, tt.wantErr)
+			}
+		})
+	}
+}
 
 func TestDetectFileType(t *testing.T) {
 	tests := []struct {
